@@ -1,0 +1,4 @@
+selenium==4.0.0          # Ensure you have Selenium installed for web automation.
+pandas==1.3.3           # For reading Excel files.
+PyMuPDF==1.18.19        # For working with PDFs.
+openpyxl==3.0.9         # Required by pandas to read Excel files.
