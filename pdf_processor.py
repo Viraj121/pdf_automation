@@ -9,7 +9,6 @@ def highlight_year_and_bleed_marks(pdf_path, output_path):
         "೨೦೨೫",  # Kannada
         "੨੦੨੫",  # Punjabi
         "２０２５",  # Gujarati
-        "๒๐๒๕",  # Thai (for extended support)
     ]
 
     doc = fitz.open(pdf_path)
@@ -29,6 +28,7 @@ def highlight_year_and_bleed_marks(pdf_path, output_path):
                 for line in block["lines"]:
                     for span in line["spans"]:
                         text = span["text"].strip()
+                        # text = span["text"].strip().replace(" ", "")  # Remove all spaces
                         bbox = span["bbox"]
 
                         if any(keyword in text for keyword in year_keywords):
