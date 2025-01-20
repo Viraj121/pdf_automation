@@ -63,13 +63,8 @@ def main():
             print(f"PDF URL fetched: {pdf_url}")
 
             if pdf_url:
-                # Convert PDF URL to S3 URL if necessary (modify this as per your requirement)
-                s3_pdf_url = convert_to_s3_url(pdf_url)  # Implement this function based on your logic
-                
-                print(f"Converted S3 PDF URL: {s3_pdf_url}")
-
                 # Download the PDF using requests
-                response = requests.get(s3_pdf_url)
+                response = requests.get(pdf_url)
                 
                 if response.status_code == 200:
                     pdf_path = os.path.join(download_dir, "downloaded_pdf.pdf")  # Define a path for saving the PDF
@@ -92,11 +87,6 @@ def main():
             print(f"Error occurred while processing link {link}: {e}")
 
     driver.quit()
-
-def convert_to_s3_url(pdf_url):
-    """Convert the given PDF URL to an S3 URL as needed."""
-    # Implement your logic here to convert pdf_url to s3_pdf_url.
-    return pdf_url  # Placeholder: replace with actual conversion logic
 
 if __name__ == "__main__":
     main()
