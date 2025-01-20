@@ -1,8 +1,6 @@
 # Ignore all files in the downloads folder
 downloads/
 
-# Ignore the links.xlsx file in the data folder
-data/links.xlsx
 
 # Ignore all __pycache__ folders
 __pycache__/
@@ -10,6 +8,4 @@ __pycache__/
 # Ignore the chromedriver.exe file
 chromedriver.exe
 
-downloads/downloaded_pdf.pdf
-downloads/output_highlighted_combined.pdf
 
