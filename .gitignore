@@ -1,6 +1,3 @@
-# Ignore all files in the downloads folder
-downloads/
-
 
 # Ignore all __pycache__ folders
 __pycache__/
