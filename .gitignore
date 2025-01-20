@@ -9,3 +9,7 @@ __pycache__/
 
 # Ignore the chromedriver.exe file
 chromedriver.exe
+
+downloads/downloaded_pdf.pdf
+downloads/output_highlighted_combined.pdf
+
