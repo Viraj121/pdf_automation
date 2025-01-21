@@ -11,4 +11,9 @@ This Python-based tool automates the process of highlighting the year "2025" in 
 - Measures distances between highlighted text and bleed marks.
 - Logs incorrect measurements into a CSV file.
 
-## create wrong_rtp folder manually
+## Before running the code
+
+- create wrong_rtp folder manually
+- pip install -r requirements.txt
+
+
