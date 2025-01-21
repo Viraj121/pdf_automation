@@ -5,7 +5,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.action_chains import ActionChains 
+from selenium.webdriver.common.action_chains import ActionChains  # For scrolling into view
 from excel_reader import read_excel_links
 from pdf_processor import highlight_year_and_bleed_marks
 from webdriver_manager.chrome import ChromeDriverManager
@@ -24,6 +24,7 @@ def setup_driver(download_dir):
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     return driver
 
+
 def scroll_into_view(driver, element):
     driver.execute_script("arguments[0].scrollIntoView(true);", element)
     time.sleep(1) 
@@ -34,7 +35,8 @@ def main():
     links = read_excel_links(excel_file)
 
     download_dir = os.path.join(os.getcwd(), 'downloads')  
-    os.makedirs(download_dir, exist_ok=True) 
+
+    os.makedirs(download_dir, exist_ok=True)  # Create directory if it doesn't exist
     driver = setup_driver(download_dir)
     
     for link in links:
@@ -45,6 +47,7 @@ def main():
             stitch_button = driver.find_element(By.XPATH, '//*[@id="stitchpdfqa"]')
             scroll_into_view(driver, stitch_button) 
             pdf_url = stitch_button.get_attribute('href')
+            print("Stitch PDF: ",pdf_url)
 
             if pdf_url:
                 response = requests.get(pdf_url)
@@ -55,7 +58,7 @@ def main():
                     with open(pdf_path, 'wb') as f:
                         f.write(response.content) 
 
-                    print(f"PDF downloaded successfully at: {pdf_path}")
+                    print(f"PDF downloaded {pdf_path}")
 
                     output_path = os.path.join(download_dir, "highlighted.pdf")
                     highlight_year_and_bleed_marks(pdf_path, output_path, pdf_url)

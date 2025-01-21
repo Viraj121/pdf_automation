@@ -12,6 +12,10 @@ def highlight_year_and_bleed_marks(pdf_path, output_path, url):
         "೨೦೨೫",  # Kannada
         "੨੦੨੫",  # Punjabi
         "２０２５",  # Gujarati
+        "2026",  # English
+        "२०२६",  # Hindi/Marathi
+        "২০২৬",  # Bengali
+        "೨೦೨೬",  # Telugu (in Telugu script
     ]
 
     incorrect_bleeds = []  # List to store incorrect bleeds
@@ -77,8 +81,7 @@ def highlight_year_and_bleed_marks(pdf_path, output_path, url):
                         if distance_mm < 13:  
                             print(f"Distance less than: {distance_mm:.2f} mm")
                             
-                            incorrect_bleeds.append({
-                               
+                            incorrect_bleeds.append({  
                                 "url": url,
                                 "distance_mm": round(distance_mm, 2)
                             })
