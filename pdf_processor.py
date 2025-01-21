@@ -1,6 +1,9 @@
 import fitz  # PyMuPDF
+from excel_reader import store_incorrect_bleeds  # Import the function to store incorrect bleeds
 
-def highlight_year_and_bleed_marks(pdf_path, output_path):
+
+
+def highlight_year_and_bleed_marks(pdf_path, output_path, url):
     year_keywords = [
         "2025",  # English
         "२०२५",  # Hindi/Marathi
@@ -11,58 +14,80 @@ def highlight_year_and_bleed_marks(pdf_path, output_path):
         "２０２５",  # Gujarati
     ]
 
-    doc = fitz.open(pdf_path)
+    incorrect_bleeds = []  # List to store incorrect bleeds
+    incorrect_rtp_folder = "wrong_rtp"
+    incorrect_rtp_file = "incorrect_bleeds.csv"  # Changed to .csv for consistency
 
-    for page_num in range(len(doc)):
-        if (page_num + 1) % 2 == 0:
-            page = doc[page_num]
-            print(f"Processing Page {page_num + 1}...")
-            
-            text_dict = page.get_text("dict")
-            drawings = page.get_drawings()
-            
-            year_positions = []
-            bleed_marks = []
+    try:
+        doc = fitz.open(pdf_path)
 
-            for block in text_dict["blocks"]:
-                for line in block["lines"]:
-                    for span in line["spans"]:
-                        text = span["text"].strip()
-                        # text = span["text"].strip().replace(" ", "")  # Remove all spaces
-                        bbox = span["bbox"]
+        for page_num in range(len(doc)):
+            if (page_num + 1) % 2 == 0:  # Process only even-numbered pages
+                page = doc[page_num]
+                print(f"Processing Page {page_num + 1}...")
+                
+                text_dict = page.get_text("dict")  # Extract text as a dictionary structure
+                drawings = page.get_drawings()      # Get any existing drawings on the page
+                
+                year_positions = []  # Store bounding boxes of highlighted years
+                bleed_marks = []     # Store bounding boxes of bleed marks
 
-                        if any(keyword in text for keyword in year_keywords):
-                            # print(f"Highlighting Year: {text} at {bbox}")
-                            page.draw_rect(bbox, color=(1, 0, 0), width=2)
-                            year_positions.append(bbox)
+                # Iterate through text blocks, lines, and spans to find keywords
+                for block in text_dict["blocks"]:
+                    for line in block["lines"]:
+                        for span in line["spans"]:
+                            text = span["text"].strip()  # Get text and remove leading/trailing spaces
+                            bbox = span["bbox"]           # Get bounding box of the text
 
-            for drawing in drawings:
-                rect = drawing["rect"]
-                if abs(rect[1] - rect[3]) < 2:
-                    # print(f"Highlighting Bleed Mark at {rect}")
-                    page.draw_rect(rect, color=(0, 1, 0), width=2)
-                    bleed_marks.append(rect)
+                            if any(keyword in text for keyword in year_keywords):
+                                adjusted_bbox = (
+                                    bbox[0],                  # x0 remains unchanged
+                                    bbox[1] + 2,              # Increase y0 to reduce space at the bottom
+                                    bbox[2],                  # x1 remains unchanged
+                                    bbox[3] - 2               # Decrease y1 to reduce space at the top
+                                )
+                                
+                                page.draw_rect(adjusted_bbox, color=(1, 0, 0), width=0)  # Highlight in red with no border width
+                                year_positions.append(adjusted_bbox)  # Store adjusted bounding box of highlighted year
 
-            for year_bbox in year_positions:
-                top_y = year_bbox[1]
-                closest_bleed_mark = None
-                closest_distance = float('inf')
+                for drawing in drawings:
+                    rect = drawing["rect"]
+                    if abs(rect[1] - rect[3]) < 2:  # Check if it's a horizontal line (bleed mark)
+                        page.draw_rect(rect, color=(0, 1, 0), width=0)  # Highlight bleed marks in green
+                        bleed_marks.append(rect)
 
-                for rect in bleed_marks:
-                    bottom_y = rect[3]
-                    if bottom_y < top_y: 
-                        distance_points = top_y - bottom_y
+                for year_bbox in year_positions:
+                    top_y = year_bbox[1]
+                    closest_bleed_mark = None
+                    closest_distance = float('inf')
 
-                        if distance_points < closest_distance:
-                            closest_distance = distance_points
-                            closest_bleed_mark = rect
+                    for rect in bleed_marks:
+                        bottom_y = rect[3]
+                        if bottom_y < top_y: 
+                            distance_points = top_y - bottom_y
 
-                if closest_bleed_mark is not None:
-                    distance_mm = closest_distance * (25.4 / 72)
-                    print(f"Distance: {distance_mm:.2f} mm")
-                    mid_x = (year_bbox[0] + year_bbox[2]) / 2
-                    bottom_y_closest = closest_bleed_mark[3]
-                    page.draw_line((mid_x, top_y), (mid_x, bottom_y_closest), color=(0, 0, 1), width=2)
+                            if distance_points < closest_distance:
+                                closest_distance = distance_points
+                                closest_bleed_mark = rect
 
-    doc.save(output_path)
-    print(f"Highlights applied and saved to '{output_path}'.")
+                    if closest_bleed_mark is not None:
+                        distance_mm = closest_distance * (25.4 / 72)  
+                        print(f"Distance: {distance_mm:.2f} mm")
+
+                        if distance_mm < 13:  
+                            print(f"Distance less than: {distance_mm:.2f} mm")
+                            
+                            incorrect_bleeds.append({
+                               
+                                "url": url,
+                                "distance_mm": round(distance_mm, 2)
+                            })
+                            store_incorrect_bleeds(incorrect_rtp_folder, incorrect_rtp_file, incorrect_bleeds)  
+                            return
+
+    except Exception as e:
+        print(f"An error occurred while processing the PDF: {e}")
+
+    finally:
+        doc.save(output_path)  # Save the modified PDF with highlights applied
+        print(f"Highlights applied and saved to '{output_path}'.")
