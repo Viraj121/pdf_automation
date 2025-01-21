@@ -51,13 +51,13 @@ def highlight_year_and_bleed_marks(pdf_path, output_path, url):
                                     bbox[3] - 2               # Decrease y1 to reduce space at the top
                                 )
                                 
-                                page.draw_rect(adjusted_bbox, color=(1, 0, 0), width=0)  # Highlight in red with no border width
+                                page.draw_rect(adjusted_bbox, color=(1, 0, 0), width=1)  # Highlight in red with no border width
                                 year_positions.append(adjusted_bbox)  # Store adjusted bounding box of highlighted year
 
                 for drawing in drawings:
                     rect = drawing["rect"]
                     if abs(rect[1] - rect[3]) < 2:  # Check if it's a horizontal line (bleed mark)
-                        page.draw_rect(rect, color=(0, 1, 0), width=0)  # Highlight bleed marks in green
+                        page.draw_rect(rect, color=(0, 1, 0), width=1)  # Highlight bleed marks in green
                         bleed_marks.append(rect)
 
                 for year_bbox in year_positions:
