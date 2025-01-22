@@ -44,15 +44,8 @@ def highlight_year_and_bleed_marks(pdf_path, output_path, url):
                             bbox = span["bbox"]           # Get bounding box of the text
 
                             if any(keyword in text for keyword in year_keywords):
-                                adjusted_bbox = (
-                                    bbox[0],                  # x0 remains unchanged
-                                    bbox[1] + 2,              # Increase y0 to reduce space at the bottom
-                                    bbox[2],                  # x1 remains unchanged
-                                    bbox[3] - 2               # Decrease y1 to reduce space at the top
-                                )
-                                
-                                page.draw_rect(adjusted_bbox, color=(1, 0, 0), width=1)  # Highlight in red with no border width
-                                year_positions.append(adjusted_bbox)  # Store adjusted bounding box of highlighted year
+                                page.draw_rect(bbox,color=(1, 0, 0), width=1)  # Highlight in red with no border width
+                                year_positions.append(bbox)  # Store adjusted bounding box of highlighted year
 
                 for drawing in drawings:
                     rect = drawing["rect"]
